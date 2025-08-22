@@ -12,6 +12,7 @@
   "dependencies": {
     "@clerk/clerk-expo": "^2.14.23",
     "@expo/vector-icons": "^14.1.0",
+    "@shopify/react-native-skia": "^2.2.4",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-native": "^5.0.0",
