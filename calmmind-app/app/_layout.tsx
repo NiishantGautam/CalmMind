@@ -12,8 +12,15 @@ function RootLayoutWithAuth() {
 
   return (
     <Stack>
-      <Stack.Screen name="(protected)" options={{ headerShown: false }} />
-      <Stack.Screen name="(public)" options={{ headerShown: false }} />
+      <Stack.Protected guard={isSignedIn}>
+        {/* Show The Protected Screen if Signed In */}
+        <Stack.Screen name="(protected)" options={{ headerShown: false }} />
+      </Stack.Protected>
+
+      {/* Show The Public Screen if Signed Out */}
+      <Stack.Protected guard={!isSignedIn}>
+        <Stack.Screen name="(public)" options={{ headerShown: false }} />
+      </Stack.Protected>
     </Stack>
   );
 }

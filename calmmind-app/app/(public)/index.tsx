@@ -1,21 +1,8 @@
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
-import { theme } from "@/theme";
+import SignIn from "@/components/clerk/SignIn";
+import { Text, View } from "react-native";
 
-export default function App() {
+export default function Index() {
   return (
-    <View style={styles.container}>
-      <Text>Auth Screen</Text>
-      <StatusBar style="auto" />
-    </View>
+    <SignIn signUpUrl="/sign-up" scheme="calmmind-app" homeUrl="(protected)" />
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colorWhite,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
