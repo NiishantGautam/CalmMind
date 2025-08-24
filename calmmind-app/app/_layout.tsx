@@ -12,8 +12,8 @@ function RootLayoutWithAuth() {
   }
 
   return (
-    <Stack>
-      <ElevenLabsProvider>
+    <ElevenLabsProvider apiKey={process.env.EXPO_PUBLIC_ELEVENLABS_API_KEY}>
+      <Stack>
         <Stack.Protected guard={isSignedIn}>
           {/* Show The Protected Screen if Signed In */}
           <Stack.Screen name="(protected)" options={{ headerShown: false }} />
@@ -23,8 +23,8 @@ function RootLayoutWithAuth() {
         <Stack.Protected guard={!isSignedIn}>
           <Stack.Screen name="(public)" options={{ headerShown: false }} />
         </Stack.Protected>
-      </ElevenLabsProvider>
-    </Stack>
+      </Stack>
+    </ElevenLabsProvider>
   );
 }
 

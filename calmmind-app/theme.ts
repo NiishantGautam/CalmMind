@@ -5,4 +5,5 @@ export const theme = {
   colorMediumBlue: "#007AFF",
   colorLightBlue: "#4DA6FF",
   colorIceBlue: "#E6F3FF",
+  colorGray: "#6B7280",
 };

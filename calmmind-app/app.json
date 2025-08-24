@@ -17,8 +17,10 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.nishu-dev.calmmind-app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio."
-      }
+        "NSMicrophoneUsageDescription": "This app uses the microphone to record audio.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bitcode": false
     },
     "android": {
       "permissions": [
@@ -48,8 +50,15 @@
           "microphonePermission": "ALLOW ${PRODUCT_NAME} to access your microphone for AI voice conversation"
         }
       ],
-        ["@livekit/react-native-expo-plugin"]
-        
-    ]
+      [
+        "@livekit/react-native-expo-plugin"
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "4860267f-d5cc-412c-89b7-9ec653b279fe"
+      }
+    }
   }
 }
