@@ -14,6 +14,7 @@ import { useUser } from "@clerk/clerk-expo";
 import { Redirect, useLocalSearchParams } from "expo-router";
 import { sessions } from "@/utils/sessions";
 import { LinearGradient } from "expo-linear-gradient";
+import Gradient from "../animations/skia/components/gradient";
 
 export default function SessionScreen() {
   const { user } = useUser();
@@ -115,128 +116,146 @@ export default function SessionScreen() {
   const sessionTheme = getSessionTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar
-        barStyle="light-content"
-        backgroundColor={sessionTheme.primary}
+    <>
+      <Gradient
+        position={"top"}
+        isSpeaking={
+          conversation.status === "speaking" ||
+          conversation.status === "connecting"
+        }
       />
 
-      <ImageBackground
-        source={session.image}
-        style={styles.backgroundImage}
-        imageStyle={styles.backgroundImageStyle}
-      >
-        <LinearGradient
-          colors={[...sessionTheme.gradient, "rgba(0,0,0,0.8)"]}
-          style={styles.gradientOverlay}
+      <SafeAreaView style={styles.container}>
+        <StatusBar
+          barStyle="light-content"
+          backgroundColor={sessionTheme.primary}
+        />
+
+        <ImageBackground
+          source={session.image}
+          style={styles.backgroundImage}
+          imageStyle={styles.backgroundImageStyle}
         >
-          <ScrollView 
-            style={styles.scrollContainer}
-            contentContainerStyle={styles.scrollContent}
-            showsVerticalScrollIndicator={false}
+          <LinearGradient
+            colors={[...sessionTheme.gradient, "rgba(0,0,0,0.8)"]}
+            style={styles.gradientOverlay}
           >
-            <View style={styles.header}>
-              <View style={styles.sessionBadge}>
-                <Text style={styles.sessionNumber}>Session {session.id}</Text>
-              </View>
-              <Text style={[styles.title, { color: sessionTheme.accent }]}>
-                {session.title}
-              </Text>
-              <Text style={[styles.subtitle, { color: "#E0E0E0" }]}>
-                {session.event}
-              </Text>
-              <View style={styles.userGreeting}>
-                <Text style={styles.greetingText}>
-                  Welcome back, {user?.firstName ?? "Warrior"} ⚔️
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.content}>
-            <View
-              style={[styles.sessionInfo, { borderColor: sessionTheme.accent }]}
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={styles.scrollContent}
+              showsVerticalScrollIndicator={false}
             >
-              <Text
-                style={[styles.sessionTitle, { color: sessionTheme.accent }]}
-              >
-                🧘‍♂️ {session.title}
-              </Text>
-              <Text style={styles.sessionDescription}>
-                {session.description}
-              </Text>
-
-              <View style={styles.sessionMetrics}>
-                <View style={styles.metric}>
-                  <Text style={styles.metricValue}>15-20</Text>
-                  <Text style={styles.metricLabel}>Minutes</Text>
+              <View style={styles.header}>
+                <View style={styles.sessionBadge}>
+                  <Text style={styles.sessionNumber}>Session {session.id}</Text>
                 </View>
-                <View style={styles.metric}>
-                  <Text style={styles.metricValue}>🎯</Text>
-                  <Text style={styles.metricLabel}>Focused</Text>
-                </View>
-                <View style={styles.metric}>
-                  <Text style={styles.metricValue}>🌟</Text>
-                  <Text style={styles.metricLabel}>Guided</Text>
+                <Text style={[styles.title, { color: sessionTheme.accent }]}>
+                  {session.title}
+                </Text>
+                <Text style={[styles.subtitle, { color: "#E0E0E0" }]}>
+                  {session.event}
+                </Text>
+                <View style={styles.userGreeting}>
+                  <Text style={styles.greetingText}>Welcome back, Nish ⚔️</Text>
                 </View>
               </View>
-            </View>
 
-            <View style={styles.actionContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.primaryButton,
-                  { backgroundColor: sessionTheme.primary },
-                ]}
-                onPress={startConversation}
-              >
-                <Text style={styles.primaryButtonText}>🎙️ Begin Journey</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.secondaryButton,
-                  { borderColor: sessionTheme.accent },
-                ]}
-                onPress={endConversation}
-              >
-                <Text
+              <View style={styles.content}>
+                <View
                   style={[
-                    styles.secondaryButtonText,
-                    { color: sessionTheme.accent },
+                    styles.sessionInfo,
+                    { borderColor: sessionTheme.accent },
                   ]}
                 >
-                  ⏸️ End Session
-                </Text>
-              </TouchableOpacity>
-            </View>
+                  <Text
+                    style={[
+                      styles.sessionTitle,
+                      { color: sessionTheme.accent },
+                    ]}
+                  >
+                    🧘‍♂️ {session.title}
+                  </Text>
+                  <Text style={styles.sessionDescription}>
+                    {session.description}
+                  </Text>
 
-            <View
-              style={[
-                styles.tipsContainer,
-                { backgroundColor: "rgba(0,0,0,0.6)" },
-              ]}
-            >
-              <Text style={[styles.tipsTitle, { color: sessionTheme.accent }]}>
-                ⚔️ Warrior's Preparation:
-              </Text>
-              <Text style={styles.tipText}>
-                🏰 Find your sanctuary - a quiet, sacred space
-              </Text>
-              <Text style={styles.tipText}>
-                🎧 Equip your headphones for crystal-clear guidance
-              </Text>
-              <Text style={styles.tipText}>
-                💬 Speak from the heart - your inner voice matters
-              </Text>
-              <Text style={styles.tipText}>
-                ⏰ Take your time - this is your moment of peace
-              </Text>
-            </View>
-            </View>
-          </ScrollView>
-        </LinearGradient>
-      </ImageBackground>
-    </SafeAreaView>
+                  <View style={styles.sessionMetrics}>
+                    <View style={styles.metric}>
+                      <Text style={styles.metricValue}>15-20</Text>
+                      <Text style={styles.metricLabel}>Minutes</Text>
+                    </View>
+                    <View style={styles.metric}>
+                      <Text style={styles.metricValue}>🎯</Text>
+                      <Text style={styles.metricLabel}>Focused</Text>
+                    </View>
+                    <View style={styles.metric}>
+                      <Text style={styles.metricValue}>🌟</Text>
+                      <Text style={styles.metricLabel}>Guided</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View style={styles.actionContainer}>
+                  <TouchableOpacity
+                    style={[
+                      styles.primaryButton,
+                      { backgroundColor: sessionTheme.primary },
+                    ]}
+                    onPress={startConversation}
+                  >
+                    <Text style={styles.primaryButtonText}>
+                      🎙️ Begin Journey
+                    </Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity
+                    style={[
+                      styles.secondaryButton,
+                      { borderColor: sessionTheme.accent },
+                    ]}
+                    onPress={endConversation}
+                  >
+                    <Text
+                      style={[
+                        styles.secondaryButtonText,
+                        { color: sessionTheme.accent },
+                      ]}
+                    >
+                      ⏸️ End Session
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View
+                  style={[
+                    styles.tipsContainer,
+                    { backgroundColor: "rgba(0,0,0,0.6)" },
+                  ]}
+                >
+                  <Text
+                    style={[styles.tipsTitle, { color: sessionTheme.accent }]}
+                  >
+                    ⚔️ Warrior's Preparation:
+                  </Text>
+                  <Text style={styles.tipText}>
+                    🏰 Find your sanctuary - a quiet, sacred space
+                  </Text>
+                  <Text style={styles.tipText}>
+                    🎧 Equip your headphones for crystal-clear guidance
+                  </Text>
+                  <Text style={styles.tipText}>
+                    💬 Speak from the heart - your inner voice matters
+                  </Text>
+                  <Text style={styles.tipText}>
+                    ⏰ Take your time - this is your moment of peace
+                  </Text>
+                </View>
+              </View>
+            </ScrollView>
+          </LinearGradient>
+        </ImageBackground>
+      </SafeAreaView>
+    </>
   );
 }
 
