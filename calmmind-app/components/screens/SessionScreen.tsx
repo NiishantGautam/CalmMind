@@ -5,25 +5,31 @@ import {
   StyleSheet,
   StatusBar,
   SafeAreaView,
+  ImageBackground,
+  ScrollView,
 } from "react-native";
 import { useConversation } from "@elevenlabs/react-native";
 import { theme } from "@/theme";
 import { useUser } from "@clerk/clerk-expo";
+import { Redirect, useLocalSearchParams } from "expo-router";
+import { sessions } from "@/utils/sessions";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function SessionScreen() {
   const { user } = useUser();
+  const { sessionId } = useLocalSearchParams();
+  const session =
+    sessions.find((session) => session.id === Number(sessionId)) ?? sessions[0];
+
+  if (!sessionId) {
+    return <Redirect href="/" />;
+  }
+
   const conversation = useConversation({
     onConnect: () => console.log("Connected to conversation"),
     onDisconnect: () => console.log("Disconnected from conversation"),
     onMessage: (message) => console.log("Received message:", message),
     onError: (error) => console.error("Conversation error:", error),
-    onModeChange: (mode) => console.log("Conversation mode changed:", mode),
-    onStatusChange: (prop) =>
-      console.log("Conversation status changed:", prop.status),
-    onCanSendFeedbackChange: (prop) =>
-      console.log("Can send feedback changed:", prop.canSendFeedback),
-    onUnhandledClientToolCall: (params) =>
-      console.log("Unhandled client tool call:", params),
   });
 
   const startConversation = async () => {
@@ -33,73 +39,203 @@ export default function SessionScreen() {
         dynamicVariables: {
           username: user?.username ?? "friend",
           time_of_day: "today",
-          session_title: "a short reset",
-          goal: "staying consistent",
-          mood: "feeling a bit unsettled",
+          session_title: session.title,
+          goal: session.description,
+          mood: session.event,
         },
       });
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error("Failed to start conversation:", error);
     }
   };
 
   const endConversation = async () => {
     try {
       await conversation.endSession();
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error("Failed to end conversation:", error);
     }
   };
 
+  // Get theme colors based on session type
+  const getSessionTheme = () => {
+    switch (session.id) {
+      case 1: // Guts' Struggle
+        return {
+          primary: "#8B0000",
+          secondary: "#2F1B14",
+          accent: "#FFD700",
+          gradient: ["#1a1a1a", "#2F1B14", "#8B0000"],
+        };
+      case 2: // Black Swordsman
+        return {
+          primary: "#000000",
+          secondary: "#1C1C1C",
+          accent: "#C0C0C0",
+          gradient: ["#000000", "#1C1C1C", "#2F2F2F"],
+        };
+      case 3: // Band of the Hawk
+        return {
+          primary: "#4169E1",
+          secondary: "#191970",
+          accent: "#FFD700",
+          gradient: ["#000080", "#191970", "#4169E1"],
+        };
+      case 4: // Casca's Resilience
+        return {
+          primary: "#8B4513",
+          secondary: "#5D4E75",
+          accent: "#DDA0DD",
+          gradient: ["#2F1B14", "#5D4E75", "#8B4513"],
+        };
+      case 5: // Eclipse
+        return {
+          primary: "#800080",
+          secondary: "#4B0082",
+          accent: "#FF4500",
+          gradient: ["#000000", "#4B0082", "#800080"],
+        };
+      case 6: // Berserker's Peace
+        return {
+          primary: "#8B0000",
+          secondary: "#006400",
+          accent: "#40E0D0",
+          gradient: ["#006400", "#2F4F4F", "#8B0000"],
+        };
+      default:
+        return {
+          primary: theme.colorTeal,
+          secondary: theme.colorMediumBlue,
+          accent: "#FFD700",
+          gradient: [theme.colorBlack, theme.colorGray, theme.colorTeal],
+        };
+    }
+  };
+
+  const sessionTheme = getSessionTheme();
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
+      <StatusBar
+        barStyle="light-content"
+        backgroundColor={sessionTheme.primary}
+      />
 
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          Mindful Session with {user?.firstName ?? "friend"}
-        </Text>
-        <Text style={styles.subtitle}>
-          Connect with your AI mindfulness guide
-        </Text>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.sessionInfo}>
-          <Text style={styles.sessionTitle}>Today's Reset Session</Text>
-          <Text style={styles.sessionDescription}>
-            A guided conversation to help you stay centered and consistent with
-            your mindfulness practice.
-          </Text>
-        </View>
-
-        <View style={styles.actionContainer}>
-          <TouchableOpacity
-            style={styles.primaryButton}
-            onPress={startConversation}
+      <ImageBackground
+        source={session.image}
+        style={styles.backgroundImage}
+        imageStyle={styles.backgroundImageStyle}
+      >
+        <LinearGradient
+          colors={[...sessionTheme.gradient, "rgba(0,0,0,0.8)"]}
+          style={styles.gradientOverlay}
+        >
+          <ScrollView 
+            style={styles.scrollContainer}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
           >
-            <Text style={styles.primaryButtonText}>Start Session</Text>
-          </TouchableOpacity>
+            <View style={styles.header}>
+              <View style={styles.sessionBadge}>
+                <Text style={styles.sessionNumber}>Session {session.id}</Text>
+              </View>
+              <Text style={[styles.title, { color: sessionTheme.accent }]}>
+                {session.title}
+              </Text>
+              <Text style={[styles.subtitle, { color: "#E0E0E0" }]}>
+                {session.event}
+              </Text>
+              <View style={styles.userGreeting}>
+                <Text style={styles.greetingText}>
+                  Welcome back, {user?.firstName ?? "Warrior"} ⚔️
+                </Text>
+              </View>
+            </View>
 
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={endConversation}
-          >
-            <Text style={styles.secondaryButtonText}>End Session</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.content}>
+            <View
+              style={[styles.sessionInfo, { borderColor: sessionTheme.accent }]}
+            >
+              <Text
+                style={[styles.sessionTitle, { color: sessionTheme.accent }]}
+              >
+                🧘‍♂️ {session.title}
+              </Text>
+              <Text style={styles.sessionDescription}>
+                {session.description}
+              </Text>
 
-        <View style={styles.tipsContainer}>
-          <Text style={styles.tipsTitle}>Session Tips:</Text>
-          <Text style={styles.tipText}>• Find a quiet, comfortable space</Text>
-          <Text style={styles.tipText}>
-            • Use headphones for better audio quality
-          </Text>
-          <Text style={styles.tipText}>
-            • Speak naturally and take your time
-          </Text>
-        </View>
-      </View>
+              <View style={styles.sessionMetrics}>
+                <View style={styles.metric}>
+                  <Text style={styles.metricValue}>15-20</Text>
+                  <Text style={styles.metricLabel}>Minutes</Text>
+                </View>
+                <View style={styles.metric}>
+                  <Text style={styles.metricValue}>🎯</Text>
+                  <Text style={styles.metricLabel}>Focused</Text>
+                </View>
+                <View style={styles.metric}>
+                  <Text style={styles.metricValue}>🌟</Text>
+                  <Text style={styles.metricLabel}>Guided</Text>
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.actionContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.primaryButton,
+                  { backgroundColor: sessionTheme.primary },
+                ]}
+                onPress={startConversation}
+              >
+                <Text style={styles.primaryButtonText}>🎙️ Begin Journey</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.secondaryButton,
+                  { borderColor: sessionTheme.accent },
+                ]}
+                onPress={endConversation}
+              >
+                <Text
+                  style={[
+                    styles.secondaryButtonText,
+                    { color: sessionTheme.accent },
+                  ]}
+                >
+                  ⏸️ End Session
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={[
+                styles.tipsContainer,
+                { backgroundColor: "rgba(0,0,0,0.6)" },
+              ]}
+            >
+              <Text style={[styles.tipsTitle, { color: sessionTheme.accent }]}>
+                ⚔️ Warrior's Preparation:
+              </Text>
+              <Text style={styles.tipText}>
+                🏰 Find your sanctuary - a quiet, sacred space
+              </Text>
+              <Text style={styles.tipText}>
+                🎧 Equip your headphones for crystal-clear guidance
+              </Text>
+              <Text style={styles.tipText}>
+                💬 Speak from the heart - your inner voice matters
+              </Text>
+              <Text style={styles.tipText}>
+                ⏰ Take your time - this is your moment of peace
+              </Text>
+            </View>
+            </View>
+          </ScrollView>
+        </LinearGradient>
+      </ImageBackground>
     </SafeAreaView>
   );
 }
@@ -107,105 +243,165 @@ export default function SessionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colorWhite,
+  },
+  backgroundImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+  },
+  backgroundImageStyle: {
+    opacity: 0.3,
+  },
+  gradientOverlay: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   header: {
-    paddingHorizontal: 24,
     paddingTop: 20,
-    paddingBottom: 32,
+    paddingBottom: 30,
     alignItems: "center",
   },
-  title: {
-    fontSize: 32,
+  sessionBadge: {
+    backgroundColor: "rgba(255, 215, 0, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#FFD700",
+  },
+  sessionNumber: {
+    color: "#FFD700",
+    fontSize: 12,
     fontWeight: "bold",
-    color: theme.colorBlack,
-    marginBottom: 8,
+    textTransform: "uppercase",
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
     textAlign: "center",
+    marginBottom: 8,
+    textShadowColor: "rgba(0, 0, 0, 0.8)",
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: theme.colorGray,
     textAlign: "center",
-    lineHeight: 22,
+    marginBottom: 15,
+    fontStyle: "italic",
   },
-
+  userGreeting: {
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  greetingText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "600",
+  },
   content: {
     flex: 1,
-    paddingHorizontal: 24,
+    justifyContent: "space-between",
+    minHeight: 600, // Ensure minimum height for proper layout
   },
   sessionInfo: {
-    backgroundColor: "#F8F9FA",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+    padding: 24,
     borderRadius: 16,
-    padding: 20,
-    marginBottom: 32,
+    marginBottom: 20,
+    borderWidth: 2,
   },
   sessionTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: theme.colorBlack,
-    marginBottom: 8,
+    fontSize: 22,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
   },
   sessionDescription: {
     fontSize: 16,
-    color: theme.colorGray,
     lineHeight: 24,
+    color: "#E0E0E0",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  sessionMetrics: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    paddingVertical: 12,
+  },
+  metric: {
+    alignItems: "center",
+  },
+  metricValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#FFD700",
+    marginBottom: 4,
+  },
+  metricLabel: {
+    fontSize: 12,
+    color: "#C0C0C0",
+    textTransform: "uppercase",
   },
   actionContainer: {
-    marginBottom: 40,
     gap: 16,
+    marginBottom: 20,
   },
   primaryButton: {
-    backgroundColor: "#6366F1",
-    borderRadius: 12,
     paddingVertical: 16,
-    paddingHorizontal: 32,
+    borderRadius: 12,
     alignItems: "center",
-    shadowColor: "#6366F1",
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 8,
   },
-
   primaryButtonText: {
-    color: "white",
+    color: "#FFFFFF",
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
   },
   secondaryButton: {
-    backgroundColor: "transparent",
-    borderWidth: 2,
-    borderColor: "#EF4444",
-    borderRadius: 12,
     paddingVertical: 16,
-    paddingHorizontal: 32,
+    borderRadius: 12,
     alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderWidth: 2,
   },
   secondaryButtonText: {
-    color: "#EF4444",
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   tipsContainer: {
-    backgroundColor: "#FEF3C7",
+    padding: 20,
     borderRadius: 12,
-    padding: 16,
-    marginTop: "auto",
-    marginBottom: 32,
+    marginBottom: 20,
   },
   tipsTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#92400E",
-    marginBottom: 8,
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 12,
+    textAlign: "center",
   },
   tipText: {
     fontSize: 14,
-    color: "#92400E",
-    marginBottom: 4,
+    color: "#C0C0C0",
+    marginBottom: 8,
     lineHeight: 20,
   },
 });
