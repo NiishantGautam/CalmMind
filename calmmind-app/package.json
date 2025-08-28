@@ -22,6 +22,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react-native": "^5.0.0",
     "expo": "^53.0.20",
+    "expo-brightness": "~13.1.4",
     "expo-constants": "~17.1.7",
     "expo-dev-client": "~5.2.4",
     "expo-linear-gradient": "^14.1.5",
