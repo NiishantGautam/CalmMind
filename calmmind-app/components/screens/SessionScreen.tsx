@@ -2,16 +2,20 @@ import { Text, View, StyleSheet, ScrollView } from "react-native";
 import { useConversation } from "@elevenlabs/react-native";
 import { theme } from "@/theme";
 import { useUser } from "@clerk/clerk-expo";
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { sessions } from "@/utils/sessions";
 import Button from "@/components/ui/Button";
 import React from "react";
+import * as Brightness from "expo-brightness";
+import {router} from "expo-router";
 
 import Gradient from "../animations/skia/components/gradient";
 
 export default function SessionScreen() {
   const { user } = useUser();
   const { sessionId } = useLocalSearchParams();
+  const router = useRouter();
+
   const session =
     sessions.find((session) => session.id === Number(sessionId)) ?? sessions[0];
 
@@ -32,6 +36,19 @@ export default function SessionScreen() {
     onDisconnect: () => console.log("Disconnected from conversation"),
     onMessage: (message) => console.log("Received message:", message),
     onError: (error) => console.error("Conversation error:", error),
+
+    clientTools: {
+      handleSetBrightness: async (parameters: unknown) => {
+        const { brightnessValue } = parameters as { brightnessValue: number };
+        console.log(`Setting Brightness to`, { brightnessValue });
+
+        const { status } = await Brightness.requestPermissionsAsync();
+        if (status === "granted") {
+          await Brightness.setSystemBrightnessAsync(brightnessValue);
+          return brightnessValue;
+        }
+      },
+    },
   });
 
   const startConversation = async () => {
@@ -59,6 +76,10 @@ export default function SessionScreen() {
   const endConversation = async () => {
     try {
       await conversation.endSession();
+      router.push({
+        pathname: "/summary",
+        params: {conversationId: conversationId},
+      })
     } catch (error) {
       console.error("Failed to end conversation:", error);
     }

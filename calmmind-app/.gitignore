@@ -47,3 +47,8 @@ ios/
 
 # Web
 web-build/
+
+
+# IDE AI agents
+.cursor
+.idea
